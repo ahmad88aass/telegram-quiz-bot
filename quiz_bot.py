@@ -7,7 +7,6 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Poll
 BOT_TOKEN = "8509031195:AAGkmlK8AfOfzbDgvXWb-69E8VJV_1bPCfo"
 ADMIN_CHAT_ID = 6729808723
 
-# خادم ويب خفيف لإبقاء الخدمة المجانية حية
 app_web = Flask(__name__)
 
 @app_web.route('/')
@@ -155,7 +154,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     user_id = query.from_user.id
     data = query.data
-if data.startswith("set_"):
+    if data.startswith("set_"):
         lesson_key = data.replace("set_", "")
         user_sessions[user_id] = {
             "lesson": lesson_key,
@@ -173,7 +172,6 @@ if data.startswith("set_"):
             reply_markup=InlineKeyboardMarkup(keyboard),
             parse_mode="Markdown"
         )
-
     elif data == "main_menu":
         keyboard = [
             [InlineKeyboardButton("🐧 أوامر لينكس الأساسية", callback_data="set_cmd")],
@@ -184,7 +182,6 @@ if data.startswith("set_"):
             "اختر الدرس الذي ترغب في اختباره:",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
-
     elif data == "confirm_start":
         await query.edit_message_text("⚡ سيبدأ الاختبار الآن، بالتوفيق!")
         await send_quiz_poll(query.message.chat_id, user_id, context)
@@ -233,5 +230,5 @@ def main():
     app.add_handler(PollAnswerHandler(handle_poll_answer))
     app.run_polling()
 
-if name == "main":
+if __name__ == "__main__":
     main()
