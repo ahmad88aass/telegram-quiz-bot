@@ -8,7 +8,7 @@ BOT_TOKEN = "8509031195:AAGkmlK8AfOfzbDgvXWb-69E8VJV_1bPCfo"
 ADMIN_CHAT_ID = 6729808723
 
 # خادم ويب خفيف لإبقاء الخدمة المجانية حية
-app_web = Flask__(name__)
+app_web = Flask(__name__)
 
 @app_web.route('/')
 def home():
