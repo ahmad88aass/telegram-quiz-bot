@@ -154,7 +154,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
-    data = query.dataif data.startswith("set_"):
+    data = query.data
+if data.startswith("set_"):
         lesson_key = data.replace("set_", "")
         user_sessions[user_id] = {
             "lesson": lesson_key,
