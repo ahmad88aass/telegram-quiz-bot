@@ -1,11 +1,22 @@
 import asyncio
+import threading
+from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Poll
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, PollAnswerHandler, ContextTypes
 
 BOT_TOKEN = "8509031195:AAGkmlK8AfOfzbDgvXWb-69E8VJV_1bPCfo"
 ADMIN_CHAT_ID = 6729808723
 
-# بنك الأسئلة مقسم حسب الدروس
+# خادم ويب خفيف لإبقاء الخدمة المجانية حية
+app_web = Flask(name)
+
+@app_web.route('/')
+def home():
+    return "Bot is running 24/7!"
+
+def run_web():
+    app_web.run(host="0.0.0.0", port=10000)
+
 QUIZ_DATA = {
     "cmd": {
         "title": "أوامر لينكس الأساسية (30 أمراً)",
@@ -67,11 +78,11 @@ QUIZ_DATA = {
                 "question": "أي طبقة من نموذج TCP/IP تقابل طبقات (التطبيق والتمثيل والجلسة) في OSI؟",
                 "options": ["الإنترنت (Internet)", "الوصول للشبكة (Network Access)", "التطبيق (Application)", "النقل (Transport)"],
                 "correct_id": 2,
-                "explanation": "في نموذج TCP/IP تم دمج الطبقات 7 و6 و5 تحت طبقة التطبيق (Application)."
-            },
+                "explanation": "في نموذج TCP/IP تم دمج الطبقات 7 و6 و5 تحت طبقة التطبيق (Application)."},
             {
                 "question": "ما هو فلتر Wireshark المستخدم لعرض حزم بدء الاتصال (SYN) فقط؟",
-                "options": ["tcp.port == 80", "tcp.flags.syn==1", "ip.addr == 192.168.1.1", "http.request"],"correct_id": 1,
+                "options": ["tcp.port == 80", "tcp.flags.syn==1", "ip.addr == 192.168.1.1", "http.request"],
+                "correct_id": 1,
                 "explanation": "الفلتر tcp.flags.syn==1 يعزل حزم مصافحة TCP الأولية."
             },
             {
@@ -143,13 +154,12 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     user_id = query.from_user.id
-    data = query.data
-
-    if data.startswith("set_"):
+    data = query.dataif data.startswith("set_"):
         lesson_key = data.replace("set_", "")
         user_sessions[user_id] = {
             "lesson": lesson_key,
-            "q_index": 0}
+            "q_index": 0
+        }
         title = QUIZ_DATA[lesson_key]["title"]
         keyboard = [
             [
@@ -211,15 +221,16 @@ async def handle_poll_answer(update: Update, context: ContextTypes.DEFAULT_TYPE)
     user_id = update.poll_answer.user.id
     if user_id in user_sessions:
         user_sessions[user_id]["q_index"] += 1
-        await asyncio.sleep(2)  # إمهال ثانيتين لمراجعة الإجابة
+        await asyncio.sleep(2)
         await send_quiz_poll(user_id, user_id, context)
 
 def main():
+    threading.Thread(target=run_web, daemon=True).start()
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(handle_callback))
     app.add_handler(PollAnswerHandler(handle_poll_answer))
     app.run_polling()
 
-if __name__ == "__main__":
+if name == "main":
     main()
